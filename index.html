@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>United States Excellence Awards</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="brand">
+      <div class="seal">US</div>
+      <div class="name">EXCELLENCE <span>AWARDS</span></div>
+    </div>
+    <div class="nav-links">
+      <a href="#categories">Categories</a>
+      <a href="#nominees">Nominees</a>
+      <a href="#leaderboard">Leaderboard</a>
+      <a href="#how">How Voting Works</a>
+      <a href="#faq">FAQ</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <button class="nav-cta" onclick="scrollToNominees()">Vote Now</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div>
+      <span class="eyebrow"><span class="dot"></span>2026 Voting Now Open</span>
+      <h1>Recognizing<br>American <em>Excellence</em></h1>
+      <p>Cast your vote for the individuals and organizations shaping the nation — from bold new voices online to public servants earning their seat. Every vote is verified, every count is public.</p>
+      <div class="hero-actions">
+        <button class="btn-primary" onclick="scrollToNominees()">Vote Now →</button>
+        <a href="#how" class="btn-ghost">How Voting Works</a>
+      </div>
+    </div>
+    <div class="stub">
+      <div class="stub-label">● Voting Closes In</div>
+      <div class="stub-title">2026 USEA Ballot</div>
+      <div class="countdown" id="countdown">
+        <div class="unit"><div class="num" id="cd-days">--</div><div class="lbl">Days</div></div>
+        <div class="unit"><div class="num" id="cd-hours">--</div><div class="lbl">Hrs</div></div>
+        <div class="unit"><div class="num" id="cd-mins">--</div><div class="lbl">Min</div></div>
+        <div class="unit"><div class="num" id="cd-secs">--</div><div class="lbl">Sec</div></div>
+      </div>
+      <div class="stub-foot">
+        <span>Total votes cast</span>
+        <b id="stub-total">0</b>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CATEGORIES -->
+<section class="section" id="categories">
+  <div class="section-head">
+    <div class="section-eyebrow">Award Categories</div>
+    <h2>Four categories. One national ballot.</h2>
+    <p>Nominees are grouped by category — filter the nominee gallery below or browse by category card.</p>
+  </div>
+  <div class="cat-grid" id="cat-grid"></div>
+</section>
+
+<!-- NOMINEES -->
+<section class="section alt" id="nominees">
+  <div class="section-head">
+    <div class="section-eyebrow">Featured Nominees</div>
+    <h2>Cast your vote</h2>
+    <p>$0.90 per vote. Pay with Apple Pay in one tap, or a card in under 30 seconds.</p>
+  </div>
+  <div class="toolbar">
+    <div class="search-wrap">
+      <input class="input" id="search" placeholder="Search nominees by name…" oninput="onSearchInput()">
+      <select class="select" id="filter-cat" onchange="renderNominees()">
+        <option value="">All Categories</option>
+      </select>
+      <select class="select" id="filter-state" onchange="renderNominees()">
+        <option value="">All States</option>
+      </select>
+      <select class="select" id="sort-by" onchange="renderNominees()">
+        <option value="votes">Most Voted</option>
+        <option value="newest">Newest</option>
+      </select>
+    </div>
+  </div>
+  <div class="nominee-grid" id="nominee-grid"></div>
+</section>
+
+<!-- LEADERBOARD -->
+<section class="section" id="leaderboard">
+  <div class="section-head">
+    <div class="section-eyebrow">Live Rankings</div>
+    <h2>Leaderboard</h2>
+    <p>Updates automatically as votes are confirmed.</p>
+  </div>
+  <div class="board">
+    <div class="board-row head">
+      <div>#</div><div></div><div>Nominee</div><div class="col-cat">Category</div><div style="text-align:right;">Votes</div>
+    </div>
+    <div id="board-body"></div>
+  </div>
+</section>
+
+<!-- PRIZES -->
+<section class="section alt">
+  <div class="section-head">
+    <div class="section-eyebrow">Recognition</div>
+    <h2>What winners receive</h2>
+  </div>
+  <div class="prize-grid" id="prize-grid">
+    <div class="prize-card"><div class="amt">Gold Medallion</div></div>
+    <div class="prize-card"><div class="amt">National Feature</div></div>
+    <div class="prize-card"><div class="amt">Verified Badge</div></div>
+    <div class="prize-card"><div class="amt">Awards Gala Invite</div></div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="how">
+  <div class="section-head">
+    <div class="section-eyebrow">Process</div>
+    <h2>How voting works</h2>
+  </div>
+  <div class="steps">
+    <div class="step"><div class="num">01</div><h4>Find your nominee</h4><p>Browse by category or search by name across all fifty states.</p></div>
+    <div class="step"><div class="num">02</div><h4>Choose vote count</h4><p>Pick a quick preset or enter a custom number of votes.</p></div>
+    <div class="step"><div class="num">03</div><h4>Pay securely</h4><p>Apple Pay in one tap, or a card — processed via Paystack.</p></div>
+    <div class="step"><div class="num">04</div><h4>Votes count instantly</h4><p>The leaderboard updates live and a receipt is emailed to you.</p></div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section alt" id="faq">
+  <div class="section-head">
+    <div class="section-eyebrow">Questions</div>
+    <h2>Frequently asked questions</h2>
+  </div>
+  <div class="faq" id="faq-list"></div>
+</section>
+
+<!-- CONTACT -->
+<section class="section" id="contact">
+  <div class="section-head">
+    <div class="section-eyebrow">Get In Touch</div>
+    <h2>Contact the awards team</h2>
+  </div>
+  <div class="contact-grid">
+    <div>
+      <div class="form-row"><label>Full Name</label><input placeholder="Jane Doe"></div>
+      <div class="form-row"><label>Email</label><input placeholder="jane@email.com"></div>
+      <div class="form-row"><label>Message</label><textarea rows="4" placeholder="How can we help?"></textarea></div>
+      <button class="btn-primary" onclick="showToast('Message sent — our team will reply within 1 business day.')">Send Message</button>
+    </div>
+    <div>
+      <p style="font-size:13.5px;color:#5b6472;line-height:1.7;">
+        For nominee submissions, press inquiries, or payment support, reach the USEA team directly.
+      </p>
+      <div style="margin-top:20px;font-size:13.5px;color:var(--navy);"><b>Email</b><br>support@usexcellenceawards.org</div>
+      <div style="margin-top:14px;font-size:13.5px;color:var(--navy);"><b>Voting Support Hours</b><br>Mon–Sun, 8am–10pm ET</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="brand" style="color:#fff;"><div class="seal">US</div><div class="name">EXCELLENCE <span>AWARDS</span></div></div>
+      <div class="footer-links">
+        <a href="#">Terms of Service</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Accessibility</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 United States Excellence Awards. All rights reserved.</span>
+      <span>Payments processed securely via Paystack.</span>
+    </div>
+  </div>
+</footer>
+
+<!-- VOTE MODAL -->
+<div class="overlay" id="overlay">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<div class="toast" id="toast"><span class="dot2"></span><span id="toast-text"></span></div>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "usea-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static USEA frontend, served via a minimal Express server for Render Web Service deployment.",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.1"
+  },
+  "engines": { "node": ">=18.0.0" }
+}

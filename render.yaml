@@ -1,0 +1,16 @@
+# Render Blueprint for the frontend, deployed as a Web Service (free tier).
+# Dashboard > New > Blueprint > point at this repo.
+# Note: unlike a Render Static Site, a free Web Service spins down after
+# ~15 min idle and cold-starts on the next request - same tradeoff your
+# usea-backend free tier already has. If that's not acceptable for the
+# frontend, a Static Site avoids it and is also free - see README.
+services:
+  - type: web
+    name: usea-frontend
+    runtime: node
+    plan: starter
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production

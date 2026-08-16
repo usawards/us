@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: theme('colors.paper.DEFAULT');
+  color: theme('colors.ink');
+}
+
+/* Ballot-stub perforation effect, reused on the hero countdown card and nominee cards */
+.stub-perf {
+  background-image: radial-gradient(circle, theme('colors.paper.DEFAULT') 3.5px, transparent 3.6px);
+  background-size: 14px 14px;
+  background-position: -3px 0;
+  height: 1px;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

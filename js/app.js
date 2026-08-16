@@ -28,11 +28,9 @@ async function loadCategories() {
   }
 
   const grid = document.getElementById('cat-grid');
-  grid.innerHTML = CATEGORIES.map((c, i) => `
+  grid.innerHTML = CATEGORIES.map((c) => `
     <div class="cat-card" onclick="filterByCategory('${c.slug}')">
-      <div class="idx">0${i + 1}</div>
       <h3>${escapeHtml(c.name)}</h3>
-      <p>${escapeHtml(c.description || '')}</p>
     </div>`).join('');
 
   const sel = document.getElementById('filter-cat');

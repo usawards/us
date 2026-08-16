@@ -30,7 +30,8 @@ async function loadCategories() {
   const grid = document.getElementById('cat-grid');
   grid.innerHTML = CATEGORIES.map((c, i) => `
     <div class="cat-card" onclick="filterByCategory('${c.slug}')">
-      <div class="idx">0${i + 1}</div>
+      <div class="medallion">0${i + 1}</div>
+      <div class="eyebrow-tag">Award Category</div>
       <h3>${escapeHtml(c.name)}</h3>
       <p>${escapeHtml(c.description || '')}</p>
     </div>`).join('');
@@ -177,11 +178,11 @@ async function renderLeaderboard() {
 
 /* ===================== FAQ (static content, no API needed) ===================== */
 const FAQS = [
-  { q: 'How much does each vote cost?', a: 'Each vote costs $0.90 USD. You can vote for any nominee as many times as you like — there is no limit on total votes.' },
-  { q: 'What payment methods are accepted?', a: 'We accept Apple Pay, Visa, Mastercard, and American Express (where supported), all processed securely through Paystack.' },
-  { q: 'Is my payment secure?', a: 'Yes. All transactions are encrypted and processed through Paystack with webhook verification, and no card details are stored on our servers.' },
+  { q: 'How much does each vote cost?', a: 'Each vote costs $0.90 USD for most categories, paid by Apple Pay or card. The Best African Youth Leader category is $KES 120 per vote via M-Pesa. You can vote for any nominee as many times as you like — there is no limit on total votes.' },
+  { q: 'What payment methods are accepted?', a: 'Apple Pay and card (Visa, Mastercard, American Express where supported) for most categories, processed securely through Paystack. The Best African Youth Leader category accepts M-Pesa via STK push instead.' },
+  { q: 'Is my payment secure?', a: 'Yes. All transactions are processed through Paystack with webhook verification, and no card or M-Pesa details are stored on our servers.' },
   { q: 'When do votes appear on the leaderboard?', a: 'Immediately — the leaderboard updates in real time as soon as a payment is confirmed.' },
-  { q: 'Will I get a receipt?', a: 'Yes, a payment confirmation and receipt are emailed to you automatically after every successful transaction.' },
+  { q: 'Will I get an email receipt?', a: 'No — voting doesn\'t require an email address, so no receipt is sent. Your vote is confirmed immediately on screen, and it appears on the leaderboard right away.' },
 ];
 
 function renderFaq() {
@@ -237,9 +238,58 @@ function closeModal() {
   currentNominee = null;
 }
 
+function isMpesaCategory() {
+  return currentNominee?.category_payment_mode === 'mpesa';
+}
+function pricePerVote() {
+  return isMpesaCategory() ? VOTE_PRICE_KES : VOTE_PRICE_USD;
+}
+function currencySymbol() {
+  return isMpesaCategory() ? 'KES ' : '$';
+}
+
 function renderModalForm() {
   const n = currentNominee;
-  const total = (currentQty * VOTE_PRICE_USD).toFixed(2);
+  const total = (currentQty * pricePerVote()).toFixed(2);
+  const sym = currencySymbol();
+
+  const qtyBlock = `
+    <div class="qty-label">Number of Votes</div>
+    <div class="qty-presets">
+      ${PRESETS.map((v) => `<div class="qty-chip ${v === currentQty ? 'active' : ''}" onclick="setQty(${v})">${v}</div>`).join('')}
+    </div>
+    <div class="qty-stepper">
+      <button onclick="stepQty(-5)">−</button>
+      <input type="number" id="qty-input" value="${currentQty}" min="1" oninput="onQtyInput(this.value)">
+      <button onclick="stepQty(5)">+</button>
+    </div>
+    <div class="form-row"><label>Name (optional)</label><input id="voter-name" placeholder="Jane Doe"></div>
+  `;
+
+  const totalBlock = `
+    <div class="total-row">
+      <div>
+        <div class="lbl">Total Amount</div>
+        <div class="sub">${currentQty} votes × ${sym}${pricePerVote().toFixed(2)}</div>
+      </div>
+      <div class="amt" id="total-amt">${sym}${total}</div>
+    </div>
+    <div id="modal-error" style="color:#A32638;font-size:12.5px;margin-bottom:10px;"></div>
+  `;
+
+  const paymentBlock = isMpesaCategory() ? `
+    <div class="form-row"><label>M-Pesa Phone Number</label><input id="voter-phone" type="tel" placeholder="07XXXXXXXX"></div>
+    <button class="btn-pay" id="pay-btn" onclick="startMpesaPayment()">Send M-Pesa Prompt — ${sym}${total}</button>
+    <div class="secure-note">🔒 You'll get an STK push on your phone — enter your M-Pesa PIN to complete this vote</div>
+  ` : `
+    <button class="pay-apple" onclick="startPayment('apple_pay')">
+      <svg viewBox="0 0 24 24" fill="white" style="height:20px;"><path d="M16.5 3c-1.1.1-2.3.7-3.1 1.6-.7.8-1.3 2-1.1 3.1 1.2.1 2.4-.6 3.2-1.5.7-.9 1.2-2.1 1-3.2zM20.9 17.4c-.5 1.1-.8 1.6-1.4 2.6-.9 1.4-2.2 3.1-3.7 3.1-1.4 0-1.7-.9-3.5-.9s-2.2.9-3.5.9c-1.5 0-2.7-1.6-3.6-3-2.5-3.7-2.7-8-.1-12.2 1.2-1.7 2.9-2.7 4.6-2.7 1.4 0 2.4.9 3.5.9 1 0 2.3-1 3.9-.9.6 0 3 .2 4.5 2.4-.1.1-2.7 1.6-2.6 4.7 0 3.7 3.3 4.9 3.4 5.1z"/></svg>
+      Pay with Apple Pay
+    </button>
+    <div class="divider">or pay by card</div>
+    <button class="btn-pay" id="pay-btn" onclick="startPayment('card')">Pay with Card — ${sym}${total}</button>
+    <div class="secure-note">🔒 Redirects to Paystack's secure checkout</div>
+  `;
 
   document.getElementById('modal-content').innerHTML = `
     <div class="modal-head">
@@ -251,31 +301,9 @@ function renderModalForm() {
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
     <div class="modal-body">
-      <div class="qty-label">Number of Votes</div>
-      <div class="qty-presets">
-        ${PRESETS.map((v) => `<div class="qty-chip ${v === currentQty ? 'active' : ''}" onclick="setQty(${v})">${v}</div>`).join('')}
-      </div>
-      <div class="qty-stepper">
-        <button onclick="stepQty(-5)">−</button>
-        <input type="number" id="qty-input" value="${currentQty}" min="1" oninput="onQtyInput(this.value)">
-        <button onclick="stepQty(5)">+</button>
-      </div>
-
-      <div class="form-row"><label>Email — for your receipt</label><input id="voter-email" type="email" placeholder="you@email.com"></div>
-      <div class="form-row"><label>Name (optional)</label><input id="voter-name" placeholder="Jane Doe"></div>
-
-      <div class="total-row">
-        <div>
-          <div class="lbl">Total Amount</div>
-          <div class="sub">${currentQty} votes × $${VOTE_PRICE_USD.toFixed(2)}</div>
-        </div>
-        <div class="amt" id="total-amt">$${total}</div>
-      </div>
-
-      <div id="modal-error" style="color:#A32638;font-size:12.5px;margin-bottom:10px;"></div>
-
-      <button class="btn-pay" id="pay-btn" onclick="startPayment()">Continue to Payment — $${total}</button>
-      <div class="secure-note">🔒 You'll choose Apple Pay or card on Paystack's secure checkout page</div>
+      ${qtyBlock}
+      ${totalBlock}
+      ${paymentBlock}
     </div>
   `;
 }
@@ -290,42 +318,119 @@ function stepQty(delta) {
 }
 function onQtyInput(v) {
   currentQty = Math.max(1, parseInt(v) || 1);
-  const total = (currentQty * VOTE_PRICE_USD).toFixed(2);
-  document.getElementById('total-amt').textContent = `$${total}`;
-  document.getElementById('pay-btn').textContent = `Continue to Payment — $${total}`;
+  const total = (currentQty * pricePerVote()).toFixed(2);
+  const sym = currencySymbol();
+  document.getElementById('total-amt').textContent = `${sym}${total}`;
+  const btn = document.getElementById('pay-btn');
+  if (btn && !isMpesaCategory()) btn.textContent = `Pay with Card — ${sym}${total}`;
+  if (btn && isMpesaCategory()) btn.textContent = `Send M-Pesa Prompt — ${sym}${total}`;
   document.querySelectorAll('.qty-chip').forEach((c) => c.classList.remove('active'));
 }
 
-async function startPayment() {
-  const email = document.getElementById('voter-email').value.trim();
+// ---- Standard flow: card / Apple Pay, redirects to Paystack's hosted checkout ----
+async function startPayment(preferredChannel) {
   const name = document.getElementById('voter-name').value.trim();
   const errorEl = document.getElementById('modal-error');
   errorEl.textContent = '';
 
-  if (!/^\S+@\S+\.\S+$/.test(email)) {
-    errorEl.textContent = 'Enter a valid email — your receipt and vote confirmation go there.';
-    return;
-  }
-
   const btn = document.getElementById('pay-btn');
-  btn.disabled = true;
-  btn.textContent = 'Starting secure checkout…';
+  if (btn) { btn.disabled = true; btn.textContent = 'Starting secure checkout…'; }
 
   try {
     const data = await Api.initiateVote({
       nominee_id: currentNominee.id,
       quantity: currentQty,
-      email,
       name: name || undefined,
+      preferred_channel: preferredChannel,
     });
-    // Redirect to Paystack's hosted checkout - it presents Apple Pay/card
-    // itself based on your Paystack account settings + the visitor's device.
     window.location.href = data.authorization_url;
   } catch (err) {
     errorEl.textContent = err.message || 'Could not start payment. Please try again.';
-    btn.disabled = false;
-    btn.textContent = `Continue to Payment — $${(currentQty * VOTE_PRICE_USD).toFixed(2)}`;
+    if (btn) { btn.disabled = false; btn.textContent = `Pay with Card — $${(currentQty * VOTE_PRICE_USD).toFixed(2)}`; }
   }
+}
+
+// ---- M-Pesa flow: triggers an STK push, no redirect - poll until it resolves ----
+async function startMpesaPayment() {
+  const name = document.getElementById('voter-name').value.trim();
+  const phone = document.getElementById('voter-phone').value.trim();
+  const errorEl = document.getElementById('modal-error');
+  errorEl.textContent = '';
+
+  if (!/^(?:\+?254|0)7\d{8}$/.test(phone.replace(/\s+/g, ''))) {
+    errorEl.textContent = 'Enter a valid M-Pesa number, e.g. 07XXXXXXXX.';
+    return;
+  }
+
+  const btn = document.getElementById('pay-btn');
+  btn.disabled = true;
+  btn.textContent = 'Sending M-Pesa prompt…';
+
+  try {
+    const data = await Api.initiateVote({
+      nominee_id: currentNominee.id,
+      quantity: currentQty,
+      name: name || undefined,
+      voter_phone: phone,
+    });
+    showMpesaWaiting(data.reference, data.display_text);
+    pollMpesaStatus(data.reference);
+  } catch (err) {
+    errorEl.textContent = err.message || 'Could not start the M-Pesa payment. Please try again.';
+    btn.disabled = false;
+    btn.textContent = `Send M-Pesa Prompt — KES ${(currentQty * VOTE_PRICE_KES).toFixed(2)}`;
+  }
+}
+
+function showMpesaWaiting(reference, displayText) {
+  document.getElementById('modal-content').innerHTML = `
+    <div class="success-view">
+      <div class="success-check"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#A32638" stroke-width="2.5"><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="9"/></svg></div>
+      <h3>Check Your Phone</h3>
+      <p>${escapeHtml(displayText || 'Enter your M-Pesa PIN to complete this vote.')}</p>
+      <p style="font-size:11.5px;color:#9aa4b2;">Reference: ${escapeHtml(reference)}</p>
+    </div>`;
+}
+
+async function pollMpesaStatus(reference, attempts = 0) {
+  try {
+    const data = await Api.verifyVote(reference);
+    if (data.status === 'success') {
+      showVoteSuccess(reference, data.quantity);
+      return;
+    }
+    if (data.status === 'failed') {
+      document.getElementById('modal-content').innerHTML = `
+        <div class="success-view">
+          <h3 style="color:#A32638;">Payment Not Completed</h3>
+          <p>The M-Pesa prompt wasn't confirmed. No votes were charged.</p>
+          <button class="btn-primary" style="width:100%;" onclick="closeModal()">Close</button>
+        </div>`;
+      return;
+    }
+  } catch (err) {
+    // keep polling - a transient error here shouldn't end the wait
+  }
+  if (attempts < 20) {
+    setTimeout(() => pollMpesaStatus(reference, attempts + 1), 3000);
+  } else {
+    document.getElementById('modal-content').innerHTML = `
+      <div class="success-view">
+        <h3>Still Waiting</h3>
+        <p>This is taking longer than usual. If you completed the prompt on your phone, your vote will still be counted — check the leaderboard shortly.</p>
+        <button class="btn-primary" style="width:100%;" onclick="closeModal()">Close</button>
+      </div>`;
+  }
+}
+
+function showVoteSuccess(reference, quantity) {
+  document.getElementById('modal-content').innerHTML = `
+    <div class="success-view">
+      <div class="success-check"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#A32638" stroke-width="2.5"><path d="M4 12l5 5L20 6"/></svg></div>
+      <h3>Vote Confirmed</h3>
+      <p>${quantity} vote${quantity === 1 ? '' : 's'} counted for ${escapeHtml(currentNominee?.name || '')}.</p>
+      <button class="btn-primary" style="width:100%;" onclick="closeModal(); renderNominees(); renderLeaderboard();">Done</button>
+    </div>`;
 }
 
 /* ===================== MISC / UTIL ===================== */

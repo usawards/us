@@ -311,7 +311,7 @@ async function startPayment() {
     return;
   }
   if (!email) {
-    email = `guest-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@usawards.local`;
+    email = `guest-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@usawards.github.io`;
   }
 
   const btn = document.getElementById('pay-btn');

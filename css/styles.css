@@ -123,33 +123,18 @@
   .section-head p{color:#5b6472;font-size:15px;margin-top:12px;line-height:1.6;}
   .section.alt{background:var(--white);border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
 
-  /* Categories - styled as award categories (medallion + ceremony type),
-     not generic topic cards */
+  /* Categories */
   .cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
   @media(max-width:900px){.cat-grid{grid-template-columns:repeat(2,1fr);}}
   @media(max-width:520px){.cat-grid{grid-template-columns:1fr;}}
   .cat-card{
-    background:var(--white);border:1px solid var(--line);border-radius:3px;padding:28px 22px 24px;
-    transition:transform .2s, box-shadow .2s, border-color .2s; cursor:pointer; position:relative;
+    background:var(--white);border:1px solid var(--line);border-radius:3px;padding:26px 22px;
+    transition:transform .2s, box-shadow .2s, border-color .2s; cursor:pointer;
   }
   .cat-card:hover{transform:translateY(-3px);box-shadow:0 16px 30px -18px rgba(11,31,58,0.25);border-color:var(--gold);}
-  .cat-card .medallion{
-    width:38px;height:38px;border-radius:50%;
-    border:1.5px solid var(--gold);
-    display:flex;align-items:center;justify-content:center;
-    font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--gold);
-    margin-bottom:16px;
-  }
-  .cat-card .eyebrow-tag{
-    font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--red);font-weight:700;
-    margin-bottom:8px;
-  }
-  .cat-card h3{
-    font-size:16.5px;font-weight:600;color:var(--navy);margin:0 0 10px;font-family:'Fraunces',serif;
-    text-transform:uppercase;letter-spacing:0.03em;line-height:1.3;
-    padding-bottom:12px;border-bottom:1px solid var(--line);
-  }
-  .cat-card p{font-size:13px;color:#6b7280;line-height:1.55;font-style:italic;}
+  .cat-card .idx{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--gold);font-weight:600;}
+  .cat-card h3{font-size:17px;font-weight:600;color:var(--navy);margin:12px 0 6px;font-family:'Fraunces',serif;}
+  .cat-card p{font-size:13px;color:#6b7280;line-height:1.5;}
 
   /* Nominee ballot-stub cards */
   .toolbar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:28px;}

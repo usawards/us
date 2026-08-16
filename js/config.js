@@ -3,7 +3,6 @@
 const API_BASE_URL = 'https://usea-backend.onrender.com';
 
 // Price shown before the API confirms it (kept in sync with the backend's
-// VOTE_PRICE_USD / VOTE_PRICE_KES - purely cosmetic here, the real charge
-// is calculated server-side in /api/votes/initiate).
+// VOTE_PRICE_USD - purely cosmetic here, the real charge is calculated
+// server-side in /api/votes/initiate).
 const VOTE_PRICE_USD = 0.90;
-const VOTE_PRICE_KES = 120; // only used for the M-Pesa-enabled category

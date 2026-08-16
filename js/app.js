@@ -261,7 +261,7 @@ function renderModalForm() {
         <button onclick="stepQty(5)">+</button>
       </div>
 
-      <div class="form-row"><label>Email (optional) — for your receipt</label><input id="voter-email" type="email" placeholder="you@email.com"></div>
+      <div class="form-row"><label>Email — for your receipt</label><input id="voter-email" type="email" placeholder="you@email.com"></div>
       <div class="form-row"><label>Name (optional)</label><input id="voter-name" placeholder="Jane Doe"></div>
 
       <div class="total-row">
@@ -297,21 +297,14 @@ function onQtyInput(v) {
 }
 
 async function startPayment() {
-  let email = document.getElementById('voter-email').value.trim();
+  const email = document.getElementById('voter-email').value.trim();
   const name = document.getElementById('voter-name').value.trim();
   const errorEl = document.getElementById('modal-error');
   errorEl.textContent = '';
 
-  // Email is optional. If left blank, use a clearly-internal placeholder
-  // (not a fake-looking real address) so the transaction row still has a
-  // value. If they *did* type something, it still has to be a valid email
-  // since that's where their receipt goes.
-  if (email && !/^\S+@\S+\.\S+$/.test(email)) {
-    errorEl.textContent = 'That doesn\'t look like a valid email — leave it blank to skip, or fix the format.';
+  if (!/^\S+@\S+\.\S+$/.test(email)) {
+    errorEl.textContent = 'Enter a valid email — your receipt and vote confirmation go there.';
     return;
-  }
-  if (!email) {
-    email = `guest-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@usawards.local`;
   }
 
   const btn = document.getElementById('pay-btn');

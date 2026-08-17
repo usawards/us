@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — USEA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="admin-body">
+
+<!-- LOGIN VIEW -->
+<div class="admin-login-wrap" id="login-view">
+  <div class="admin-login-card">
+    <div class="brand" style="justify-content:center;margin-bottom:22px;">
+      <div class="seal">US</div>
+      <div class="name">EXCELLENCE <span>AWARDS</span></div>
+    </div>
+    <h1>Admin Login</h1>
+    <div class="form-row"><label>Email</label><input id="login-email" type="email" placeholder="you@email.com"></div>
+    <div class="form-row"><label>Password</label><input id="login-password" type="password" placeholder="••••••••"></div>
+    <div id="login-error" class="admin-error"></div>
+    <button class="btn-primary" style="width:100%;" id="login-btn" onclick="doLogin()">Log In</button>
+  </div>
+</div>
+
+<!-- ADMIN DASHBOARD VIEW -->
+<div class="admin-dash" id="dash-view" style="display:none;">
+  <nav class="nav">
+    <div class="nav-inner">
+      <div class="brand">
+        <div class="seal">US</div>
+        <div class="name">ADMIN <span>PANEL</span></div>
+      </div>
+      <div class="nav-links" id="admin-tabs">
+        <a href="#" data-tab="stats" class="active">Overview</a>
+        <a href="#" data-tab="categories">Categories</a>
+        <a href="#" data-tab="nominees">Nominees</a>
+        <a href="#" data-tab="transactions">Transactions</a>
+        <a href="#" data-tab="settings">Settings</a>
+        <a href="#" data-tab="audit" id="audit-tab-link">Audit Log</a>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;">
+        <span id="admin-whoami" style="color:var(--gold-light);font-size:13px;"></span>
+        <button class="nav-cta" onclick="doLogout()">Log Out</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="admin-main">
+
+    <!-- OVERVIEW -->
+    <section class="admin-panel" id="panel-stats">
+      <h2>Overview</h2>
+      <div class="stat-grid" id="stat-grid"></div>
+    </section>
+
+    <!-- CATEGORIES -->
+    <section class="admin-panel" id="panel-categories" style="display:none;">
+      <div class="panel-head">
+        <h2>Categories</h2>
+        <button class="btn-primary" onclick="openCategoryForm()">+ New Category</button>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Name</th><th>Slug</th><th>Description</th><th></th></tr></thead>
+          <tbody id="categories-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- NOMINEES -->
+    <section class="admin-panel" id="panel-nominees" style="display:none;">
+      <div class="panel-head">
+        <h2>Nominees</h2>
+        <button class="btn-primary" onclick="openNomineeForm()">+ New Nominee</button>
+      </div>
+      <div class="admin-toolbar">
+        <select class="select" id="nominee-filter-cat" onchange="loadNominees()"><option value="">All Categories</option></select>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Photo</th><th>Name</th><th>Category</th><th>State</th><th>Votes</th><th></th></tr></thead>
+          <tbody id="nominees-body"></tbody>
+        </table>
+      </div>
+      <p class="admin-note">Note: this list only shows active nominees — soft-deleted ones aren't retrievable here yet.</p>
+    </section>
+
+    <!-- TRANSACTIONS -->
+    <section class="admin-panel" id="panel-transactions" style="display:none;">
+      <div class="panel-head">
+        <h2>Transactions</h2>
+        <div style="display:flex;gap:10px;">
+          <select class="select" id="tx-status-filter" onchange="loadTransactions()">
+            <option value="">All Statuses</option>
+            <option value="success">Success</option>
+            <option value="pending">Pending</option>
+            <option value="failed">Failed</option>
+          </select>
+          <button class="btn-ghost" onclick="exportCsv()">Export CSV</button>
+        </div>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Reference</th><th>Nominee</th><th>Qty</th><th>Amount</th><th>Status</th><th>Channel</th><th>Email</th><th>Date</th></tr></thead>
+          <tbody id="tx-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="admin-panel" id="panel-settings" style="display:none;">
+      <h2>Site Settings</h2>
+      <div class="settings-form">
+        <div class="form-row"><label>Voting Deadline (ISO, e.g. 2026-09-01T00:00:00.000Z)</label><input id="set-deadline"></div>
+        <div class="form-row"><label>Homepage Headline</label><input id="set-headline"></div>
+        <div class="form-row"><label>Homepage Subtext</label><input id="set-subtext"></div>
+        <div class="form-row"><label>Prizes (one per line)</label><textarea id="set-prizes" rows="4"></textarea></div>
+        <div id="settings-error" class="admin-error"></div>
+        <button class="btn-primary" onclick="saveSettings()">Save Settings</button>
+      </div>
+    </section>
+
+    <!-- AUDIT LOG -->
+    <section class="admin-panel" id="panel-audit" style="display:none;">
+      <h2>Audit Log</h2>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Admin</th><th>Action</th><th>Details</th><th>IP</th><th>Date</th></tr></thead>
+          <tbody id="audit-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- CATEGORY FORM MODAL -->
+<div class="overlay" id="cat-overlay">
+  <div class="modal" id="cat-modal-content"></div>
+</div>
+
+<!-- NOMINEE FORM MODAL -->
+<div class="overlay" id="nom-overlay">
+  <div class="modal" id="nom-modal-content"></div>
+</div>
+
+<div class="toast" id="toast"><span class="dot2"></span><span id="toast-text"></span></div>
+
+<script src="js/config.js"></script>
+<script src="js/adminApi.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

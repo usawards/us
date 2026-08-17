@@ -43,3 +43,31 @@
 /* Modal form (reused overlay/modal classes from styles.css) */
 .admin-modal-body{padding:22px;}
 .admin-modal-body h3{font-family:'Fraunces',serif;font-size:19px;color:var(--navy);margin:0 0 16px;}
+
+/* Mobile nav override — the public site hides .nav-links entirely under
+   840px, which would leave the admin panel with no way to switch tabs.
+   Instead, stack the header and make the tabs a horizontally scrollable
+   row so every tab stays reachable on small screens. */
+@media(max-width:840px){
+  .admin-dash .nav-inner{flex-wrap:wrap;height:auto;padding:12px 16px;gap:10px;}
+  .admin-dash .nav-links{
+    display:flex !important;
+    width:100%;
+    order:3;
+    gap:18px;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    padding-bottom:4px;
+    scrollbar-width:thin;
+  }
+  .admin-dash .nav-links a{white-space:nowrap;flex-shrink:0;}
+  .admin-dash .nav-inner > div:last-child{order:2;margin-left:auto;gap:10px;}
+  #admin-whoami{display:none;}
+}
+@media(max-width:480px){
+  .admin-main{padding:20px 14px 60px;}
+  .panel-head{flex-direction:column;align-items:flex-start;}
+  .stat-grid{grid-template-columns:1fr;}
+  .admin-table{font-size:12.5px;}
+  .admin-table th,.admin-table td{padding:9px 10px;}
+}

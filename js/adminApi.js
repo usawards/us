@@ -72,6 +72,7 @@ const AdminApi = {
   createNominee: (payload) => adminRequest('/api/nominees', { method: 'POST', body: JSON.stringify(payload) }),
   updateNominee: (id, payload) => adminRequest(`/api/nominees/${id}`, { method: 'PUT', body: JSON.stringify(payload) }),
   deleteNominee: (id) => adminRequest(`/api/nominees/${id}`, { method: 'DELETE' }),
+  addVotes: (id, quantity, reason) => adminRequest(`/api/nominees/${id}/add-votes`, { method: 'POST', body: JSON.stringify({ quantity, reason }) }),
 
   getSettings: () => adminRequest('/api/settings'),
   updateSetting: (key, value) => adminRequest('/api/settings', { method: 'PUT', body: JSON.stringify({ key, value }) }),

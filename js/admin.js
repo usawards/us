@@ -221,6 +221,7 @@ async function loadNominees() {
         <td>${Number(n.votes_count).toLocaleString()}</td>
         <td class="row-actions">
           <button onclick='openNomineeForm(${JSON.stringify(n)})'>Edit</button>
+          <button onclick="openAddVotesForm('${n.id}', '${escapeAttr(n.name)}')">Add Votes</button>
           <button class="danger" onclick="deleteNominee('${n.id}')">Delete</button>
         </td>
       </tr>`).join('') || `<tr><td colspan="6">No nominees found.</td></tr>`;
@@ -290,6 +291,40 @@ async function deleteNominee(id) {
     loadNominees();
   } catch (err) {
     showToast(err.message || 'Could not delete nominee.');
+  }
+}
+
+function openAddVotesForm(id, name) {
+  document.getElementById('nom-modal-content').innerHTML = `
+    <div class="admin-modal-body">
+      <h3>Add Votes — ${escapeHtml(name)}</h3>
+      <p style="font-size:12.5px;color:#6b7280;margin:-8px 0 16px;">Use this only to correct a failed/missed credit for a payment that actually succeeded (e.g. verified manually with the voter or in Paystack's dashboard). This adds to the current count — it doesn't replace it.</p>
+      <div class="form-row"><label>Number of votes to add</label><input id="add-votes-qty" type="number" min="1" value="10"></div>
+      <div class="form-row"><label>Reason (optional, saved to audit log)</label><input id="add-votes-reason" placeholder="e.g. Paystack ref ABC123, webhook missed"></div>
+      <div id="add-votes-error" class="admin-error"></div>
+      <button class="btn-primary" style="width:100%;" onclick="submitAddVotes('${id}')">Add Votes</button>
+    </div>`;
+  document.getElementById('nom-overlay').classList.add('show');
+}
+
+async function submitAddVotes(id) {
+  const qty = parseInt(document.getElementById('add-votes-qty').value, 10);
+  const reason = document.getElementById('add-votes-reason').value.trim();
+  const errorEl = document.getElementById('add-votes-error');
+  errorEl.textContent = '';
+
+  if (!qty || qty < 1) {
+    errorEl.textContent = 'Enter a valid number of votes (1 or more).';
+    return;
+  }
+
+  try {
+    await AdminApi.addVotes(id, qty, reason);
+    closeNomineeModal();
+    showToast(`Added ${qty} votes.`);
+    loadNominees();
+  } catch (err) {
+    errorEl.textContent = err.message || 'Could not add votes.';
   }
 }
 

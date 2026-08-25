@@ -38,6 +38,7 @@
         <a href="#" data-tab="stats" class="active">Overview</a>
         <a href="#" data-tab="categories">Categories</a>
         <a href="#" data-tab="nominees">Nominees</a>
+        <a href="#" data-tab="applications">Applications</a>
         <a href="#" data-tab="transactions">Transactions</a>
         <a href="#" data-tab="settings">Settings</a>
         <a href="#" data-tab="audit" id="audit-tab-link">Audit Log</a>
@@ -87,6 +88,27 @@
         </table>
       </div>
       <p class="admin-note">Note: this list only shows active nominees — soft-deleted ones aren't retrievable here yet.</p>
+    </section>
+
+    <!-- APPLICATIONS -->
+    <section class="admin-panel" id="panel-applications" style="display:none;">
+      <div class="panel-head">
+        <h2>Nominee Applications</h2>
+        <select class="select" id="app-status-filter" onchange="loadApplications()">
+          <option value="paid">Awaiting Review (Paid)</option>
+          <option value="">All</option>
+          <option value="pending_payment">Pending Payment</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
+          <option value="failed">Failed</option>
+        </select>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Applicant</th><th>Category</th><th>Email</th><th>Social Link</th><th>Fee</th><th>Status</th><th>Date</th><th></th></tr></thead>
+          <tbody id="applications-body"></tbody>
+        </table>
+      </div>
     </section>
 
     <!-- TRANSACTIONS -->

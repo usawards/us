@@ -37,4 +37,10 @@ const Api = {
     apiRequest('/api/votes/initiate', { method: 'POST', body: JSON.stringify(payload) }),
 
   verifyVote: (reference) => apiRequest(`/api/votes/verify/${reference}`),
+
+  // Nominee application - $500 fee, same Paystack checkout flow as voting.
+  initiateApplication: (payload) =>
+    apiRequest('/api/applications/initiate', { method: 'POST', body: JSON.stringify(payload) }),
+
+  verifyApplication: (reference) => apiRequest(`/api/applications/verify/${reference}`),
 };

@@ -15,6 +15,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('overlay').addEventListener('click', (e) => {
     if (e.target.id === 'overlay') closeModal();
   });
+  document.getElementById('apply-overlay').addEventListener('click', (e) => {
+    if (e.target.id === 'apply-overlay') closeApplyModal();
+  });
 });
 
 /* ===================== CATEGORIES ===================== */
@@ -330,6 +333,94 @@ async function startPayment() {
     errorEl.textContent = err.message || 'Could not start payment. Please try again.';
     btn.disabled = false;
     btn.textContent = `Continue to Payment — $${(currentQty * VOTE_PRICE_USD).toFixed(2)}`;
+  }
+}
+
+/* ===================== APPLY AS NOMINEE ===================== */
+function openApplyModal() {
+  renderApplyForm();
+  document.getElementById('apply-overlay').classList.add('show');
+}
+function closeApplyModal() {
+  document.getElementById('apply-overlay').classList.remove('show');
+}
+
+function renderApplyForm() {
+  const catOptions = CATEGORIES.map((c) => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
+
+  document.getElementById('apply-modal-content').innerHTML = `
+    <div class="modal-head">
+      <div>
+        <h3>Apply as a Nominee</h3>
+        <p>One-time application fee — $${APPLICATION_FEE_USD.toFixed(2)}</p>
+      </div>
+      <button class="modal-close" onclick="closeApplyModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row"><label>Full Name</label><input id="apply-name" placeholder="Jane Doe"></div>
+      <div class="form-row"><label>Category</label>
+        <select id="apply-category" class="select" style="width:100%;">
+          <option value="">Choose a category…</option>
+          ${catOptions}
+        </select>
+      </div>
+      <div class="form-row"><label>Email — for your receipt and updates</label><input id="apply-email" type="email" placeholder="you@email.com"></div>
+      <div class="form-row"><label>Social Media Link</label><input id="apply-social" placeholder="https://instagram.com/yourhandle"></div>
+
+      <div class="total-row">
+        <div>
+          <div class="lbl">Application Fee</div>
+          <div class="sub">One-time, non-refundable</div>
+        </div>
+        <div class="amt">$${APPLICATION_FEE_USD.toFixed(2)}</div>
+      </div>
+
+      <div id="apply-error" style="color:#A32638;font-size:12.5px;margin-bottom:10px;"></div>
+
+      <button class="btn-pay" id="apply-pay-btn" onclick="startApplicationPayment()">Continue to Payment — $${APPLICATION_FEE_USD.toFixed(2)}</button>
+      <div class="secure-note">🔒 You'll choose Apple Pay or card on Paystack's secure checkout page. Submitting doesn't guarantee inclusion — applications are reviewed before a nominee profile is created.</div>
+    </div>
+  `;
+}
+
+async function startApplicationPayment() {
+  const name = document.getElementById('apply-name').value.trim();
+  const category_id = document.getElementById('apply-category').value;
+  const email = document.getElementById('apply-email').value.trim();
+  const social_link = document.getElementById('apply-social').value.trim();
+  const errorEl = document.getElementById('apply-error');
+  errorEl.textContent = '';
+
+  if (name.length < 2) {
+    errorEl.textContent = 'Enter your full name.';
+    return;
+  }
+  if (!category_id) {
+    errorEl.textContent = 'Choose a category to apply for.';
+    return;
+  }
+  if (!/^\S+@\S+\.\S+$/.test(email)) {
+    errorEl.textContent = 'Enter a valid email — your receipt and any updates go there.';
+    return;
+  }
+  if (social_link && !/^https?:\/\/\S+\.\S+/.test(social_link)) {
+    errorEl.textContent = 'Social media link should be a full URL (e.g. https://instagram.com/you).';
+    return;
+  }
+
+  const btn = document.getElementById('apply-pay-btn');
+  btn.disabled = true;
+  btn.textContent = 'Starting secure checkout…';
+
+  try {
+    const data = await Api.initiateApplication({
+      name, category_id, email, social_link: social_link || undefined,
+    });
+    window.location.href = data.authorization_url;
+  } catch (err) {
+    errorEl.textContent = err.message || 'Could not start payment. Please try again.';
+    btn.disabled = false;
+    btn.textContent = `Continue to Payment — $${APPLICATION_FEE_USD.toFixed(2)}`;
   }
 }
 

@@ -25,7 +25,10 @@
       <a href="#faq">FAQ</a>
       <a href="#contact">Contact</a>
     </div>
-    <button class="nav-cta" onclick="scrollToNominees()">Vote Now</button>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="btn-ghost" onclick="openApplyModal()">Apply as Nominee</button>
+      <button class="nav-cta" onclick="scrollToNominees()">Vote Now</button>
+    </div>
   </div>
 </nav>
 
@@ -189,6 +192,11 @@
 <!-- VOTE MODAL -->
 <div class="overlay" id="overlay">
   <div class="modal" id="modal-content"></div>
+</div>
+
+<!-- APPLY AS NOMINEE MODAL -->
+<div class="overlay" id="apply-overlay">
+  <div class="modal" id="apply-modal-content"></div>
 </div>
 
 <div class="toast" id="toast"><span class="dot2"></span><span id="toast-text"></span></div>

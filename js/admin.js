@@ -95,6 +95,7 @@ function switchTab(tab) {
   if (tab === 'stats') loadStats();
   if (tab === 'categories') loadCategories();
   if (tab === 'nominees') loadNomineesTabInit();
+  if (tab === 'applications') loadApplications();
   if (tab === 'transactions') loadTransactions();
   if (tab === 'settings') loadSettings();
   if (tab === 'audit') loadAuditLogs();
@@ -325,6 +326,57 @@ async function submitAddVotes(id) {
     loadNominees();
   } catch (err) {
     errorEl.textContent = err.message || 'Could not add votes.';
+  }
+}
+
+/* ===================== APPLICATIONS ===================== */
+async function loadApplications() {
+  const body = document.getElementById('applications-body');
+  body.innerHTML = `<tr><td colspan="8">Loading…</td></tr>`;
+  const status = document.getElementById('app-status-filter').value;
+  try {
+    const data = await AdminApi.getApplications({ status });
+    const apps = data.applications || [];
+    body.innerHTML = apps.map((a) => `
+      <tr>
+        <td>${escapeHtml(a.name)}</td>
+        <td>${escapeHtml(a.category_name || '')}</td>
+        <td>${escapeHtml(a.email)}</td>
+        <td>${a.social_link ? `<a href="${escapeAttr(a.social_link)}" target="_blank" rel="noopener">${escapeHtml(a.social_link)}</a>` : '—'}</td>
+        <td>$${Number(a.amount_usd).toFixed(2)}</td>
+        <td><span class="badge-status ${a.status === 'paid' ? 'pending' : a.status === 'approved' ? 'success' : a.status === 'rejected' || a.status === 'failed' ? 'failed' : 'pending'}">${escapeHtml(a.status)}</span></td>
+        <td>${new Date(a.created_at).toLocaleDateString()}</td>
+        <td class="row-actions">
+          ${a.status === 'paid' ? `
+            <button onclick="approveApplicationAction('${a.id}', '${escapeAttr(a.name)}')">Approve</button>
+            <button class="danger" onclick="rejectApplicationAction('${a.id}', '${escapeAttr(a.name)}')">Reject</button>
+          ` : ''}
+        </td>
+      </tr>`).join('') || `<tr><td colspan="8">No applications found.</td></tr>`;
+  } catch (err) {
+    body.innerHTML = `<tr><td colspan="8" style="color:var(--red);">${escapeHtml(err.message)}</td></tr>`;
+  }
+}
+
+async function approveApplicationAction(id, name) {
+  if (!confirm(`Approve ${name}'s application? This creates a live nominee profile immediately.`)) return;
+  try {
+    await AdminApi.approveApplication(id);
+    showToast(`${name} approved and added as a nominee.`);
+    loadApplications();
+  } catch (err) {
+    showToast(err.message || 'Could not approve application.');
+  }
+}
+
+async function rejectApplicationAction(id, name) {
+  const note = prompt(`Reason for rejecting ${name}'s application (optional):`) || '';
+  try {
+    await AdminApi.rejectApplication(id, note);
+    showToast(`${name}'s application rejected.`);
+    loadApplications();
+  } catch (err) {
+    showToast(err.message || 'Could not reject application.');
   }
 }
 

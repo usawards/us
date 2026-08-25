@@ -74,6 +74,13 @@ const AdminApi = {
   deleteNominee: (id) => adminRequest(`/api/nominees/${id}`, { method: 'DELETE' }),
   addVotes: (id, quantity, reason) => adminRequest(`/api/nominees/${id}/add-votes`, { method: 'POST', body: JSON.stringify({ quantity, reason }) }),
 
+  getApplications: (params = {}) => {
+    const qs = new URLSearchParams(Object.entries(params).filter(([, v]) => v !== '' && v !== undefined)).toString();
+    return adminRequest(`/api/applications${qs ? `?${qs}` : ''}`);
+  },
+  approveApplication: (id, note) => adminRequest(`/api/applications/${id}/approve`, { method: 'POST', body: JSON.stringify({ note }) }),
+  rejectApplication: (id, note) => adminRequest(`/api/applications/${id}/reject`, { method: 'POST', body: JSON.stringify({ note }) }),
+
   getSettings: () => adminRequest('/api/settings'),
   updateSetting: (key, value) => adminRequest('/api/settings', { method: 'PUT', body: JSON.stringify({ key, value }) }),
 };

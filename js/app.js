@@ -337,7 +337,15 @@ async function startPayment() {
 }
 
 /* ===================== APPLY AS NOMINEE ===================== */
-function openApplyModal() {
+async function openApplyModal() {
+  if (CATEGORIES.length === 0) {
+    try {
+      const data = await Api.getCategories();
+      CATEGORIES = data.categories || [];
+    } catch (err) {
+      console.error('Failed to load categories for apply form:', err);
+    }
+  }
   renderApplyForm();
   document.getElementById('apply-overlay').classList.add('show');
 }
@@ -346,7 +354,10 @@ function closeApplyModal() {
 }
 
 function renderApplyForm() {
-  const catOptions = CATEGORIES.map((c) => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
+  const catOptions = CATEGORIES.length
+    ? CATEGORIES.map((c) => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('')
+    : '';
+  const catPlaceholder = CATEGORIES.length ? 'Choose a category…' : 'Couldn\'t load categories — try closing and reopening this form';
 
   document.getElementById('apply-modal-content').innerHTML = `
     <div class="modal-head">
@@ -360,7 +371,7 @@ function renderApplyForm() {
       <div class="form-row"><label>Full Name</label><input id="apply-name" placeholder="Jane Doe"></div>
       <div class="form-row"><label>Category</label>
         <select id="apply-category" class="select" style="width:100%;">
-          <option value="">Choose a category…</option>
+          <option value="">${catPlaceholder}</option>
           ${catOptions}
         </select>
       </div>
